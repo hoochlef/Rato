@@ -1,0 +1,7 @@
+# Ignore the virtual environment folder
+/backend/reviews-venv/
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
