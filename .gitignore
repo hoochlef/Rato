@@ -1,11 +1,33 @@
 # Ignore the virtual environment folder
 /backend/reviews-venv/
-# Ignore the virtual environment folder
-/backend/tests-folder/
+
+# Virtual Environments
+venv/
+.env/
+.envrc
+*.venv
+Pipfile.lock
+poetry.lock
+
 # Python cache files
 __pycache__/
 *.pyc
-*.pyo
 *.pyd
+*.py[cod]
+*.so
+*.egg-info/
+*.pyo
+
 # env variables
 .env
+
+# Logs & OS Files
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+*.swp
+
