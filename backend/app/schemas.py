@@ -1,4 +1,6 @@
+from datetime import datetime
 from sqlmodel import Column, Field, Float, SQLModel
+from pydantic import EmailStr
 
 
 # Business classes
@@ -27,16 +29,21 @@ class ReviewBase(SQLModel):
 class ReviewCreate(ReviewBase):
     user_id: int = Field(nullable=False)
 
+class ReviewUpdate(ReviewBase):
+    rating: float | None = None
+    review_text: str | None = None
+
 class ReviewPublic(ReviewBase):
     review_id: int
+    created_at: datetime
 
 # User classes
 class UserBase(SQLModel):
     username: str = Field(unique=True, nullable=False)
-    email: str = Field(unique=True, nullable=False)
+    email: EmailStr
     
 class UserCreate(UserBase):
-    hashed_password: str = Field(nullable=False)
+    password: str = Field(nullable=False)
 
 class UserPublic(UserBase):
     user_id: int

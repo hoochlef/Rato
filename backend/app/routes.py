@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from .models import Business, Review, User, Category
 from . import schemas
 from .database import engine, get_session
+from . import utils
 
 router = APIRouter()
 
@@ -104,3 +105,48 @@ def add_review(business_id: int, review: schemas.ReviewCreate, session: Session 
     session.refresh(db_review)
     return db_review
 
+# Delete a review
+@router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_review(review_id: int, session: Session = Depends(get_session)):
+    review = session.get(Review, review_id)
+    if not review:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
+    session.delete(review)
+    session.commit()
+
+# Update a review
+@router.patch("/reviews/{review_id}", response_model=schemas.ReviewPublic)
+def update_review(review_id: int, review: schemas.ReviewUpdate, session: Session = Depends(get_session)):
+    db_review = session.get(Review, review_id)
+    if not db_review:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
+    
+    review_data = review.model_dump(exclude_unset=True)
+    
+    for key, value in review_data.items():
+        setattr(db_review, key, value)
+
+    session.add(db_review)
+    session.commit()
+    session.refresh(db_review)
+    return db_review
+
+## Users endpoints
+@router.post("/users/", response_model=schemas.UserPublic, status_code=status.HTTP_201_CREATED)
+def create_user(user: schemas.UserCreate, session: Session = Depends(get_session)):
+    # Hashing the password 
+    user.password = utils.hash_password(user.password)
+
+    news_user = User(**user.model_dump())
+    session.add(news_user)
+    session.commit()
+    session.refresh(news_user)
+    return news_user
+
+# Get a user based on Id
+@router.get("/users/{user_id}", response_model=schemas.UserPublic)
+def get_user(user_id: int, session: Session = Depends(get_session)):
+    user = session.get(User, user_id) 
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found")
+    return user
