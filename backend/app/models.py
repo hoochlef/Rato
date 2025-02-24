@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlmodel import TIMESTAMP, Column, Field, Float, SQLModel
+from sqlmodel import TIMESTAMP, Column, Field, Float, ForeignKey, SQLModel
 from sqlalchemy import CheckConstraint, func
 
 
@@ -10,7 +10,7 @@ class Business(SQLModel, table=True):
     name: str = Field(unique=True, nullable=False)
     description: str | None = None
     average_rating: float = Field(default=0.0, sa_column=Column(Float, server_default="0.0"))
-    category_id: int = Field(foreign_key="categories.category_id", nullable=False)
+    category_id: int = Field(foreign_key="categories.category_id", ondelete="CASCADE", nullable=False)
     created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=False), server_default=func.now()))
 
 class Review(SQLModel, table=True):
@@ -21,8 +21,8 @@ class Review(SQLModel, table=True):
     review_id: int | None = Field(default=None, primary_key=True)
     rating: float = Field(nullable=False)
     review_text: str = Field(nullable=False)
-    user_id: int = Field(foreign_key="users.user_id", nullable=False)
-    business_id: int = Field(foreign_key="businesses.business_id", nullable=False)
+    user_id: int = Field(foreign_key="users.user_id", ondelete="CASCADE", nullable=False)
+    business_id: int = Field(foreign_key="businesses.business_id", ondelete="CASCADE", nullable=False)
     created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=False), server_default=func.now()))
 
 class User(SQLModel, table=True):

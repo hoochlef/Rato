@@ -4,7 +4,9 @@ from .. import models, schemas
 from ..database import get_session
 
 
-router = APIRouter()
+router = APIRouter(
+    tags=["Reviews"]
+)
 
 # Get reviews for a business
 @router.get("/businesses/{business_id}/reviews/", response_model=list[schemas.ReviewPublic])

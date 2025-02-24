@@ -1,13 +1,16 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, Query, status, APIRouter
 from sqlmodel import Session, select
-from .. import models, schemas
+from .. import models, schemas, oauth2
 from ..database import get_session
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/businesses",
+    tags=["Businesses"]
+)
 
 # Get all businesses
-@router.get("/businesses/", response_model=list[schemas.BusinessPublic])
+@router.get("/", response_model=list[schemas.BusinessPublic])
 def get_businesses(session: Session = Depends(get_session),
                     offset: int = 0,
                     limit: Annotated[int, Query(le=100)] = 100):
@@ -15,7 +18,7 @@ def get_businesses(session: Session = Depends(get_session),
     return businesses
 
 # Get an individual business
-@router.get("/businesses/{business_id}", response_model=schemas.BusinessPublic)
+@router.get("/{business_id}", response_model=schemas.BusinessPublic)
 def get_business(business_id: int, session: Session = Depends(get_session)):
     business = session.get(models.Business, business_id) 
     if not business:
@@ -23,14 +26,15 @@ def get_business(business_id: int, session: Session = Depends(get_session)):
     return business
 
 # Create a business
-@router.post("/businesses/", response_model=schemas.BusinessPublic, status_code=status.HTTP_201_CREATED)
-def create_business(business: schemas.BusinessCreate, session: Session = Depends(get_session)):
+@router.post("/", response_model=schemas.BusinessPublic, status_code=status.HTTP_201_CREATED)
+def create_business(business: schemas.BusinessCreate, session: Session = Depends(get_session),
+                    current_user: models.User = Depends(oauth2.get_current_user)):
+
     # Check if the category exists
     db_category = session.get(models.Category, business.category_id)  
     if not db_category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     
-    # db_business = Business(name=business.name, description=business.description, category_id=business.category_id)
     db_business = models.Business(**business.model_dump())
     session.add(db_business)
     session.commit()
@@ -38,8 +42,10 @@ def create_business(business: schemas.BusinessCreate, session: Session = Depends
     return db_business
 
 # Delete a business
-@router.delete("/businesses/{business_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_business(business_id: int, session: Session = Depends(get_session)):
+@router.delete("/{business_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_business(business_id: int, session: Session = Depends(get_session),
+                    current_user: models.User = Depends(oauth2.get_current_user)):
+    
     business = session.get(models.Business, business_id)
     if not business:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
@@ -47,8 +53,9 @@ def delete_business(business_id: int, session: Session = Depends(get_session)):
     session.commit()
 
 # Update a business
-@router.patch("/businesses/{business_id}", response_model=schemas.BusinessPublic)
-def update_business(business_id: int, business: schemas.BusinessUpdate, session: Session = Depends(get_session)):
+@router.patch("/{business_id}", response_model=schemas.BusinessPublic)
+def update_business(business_id: int, business: schemas.BusinessUpdate, session: Session = Depends(get_session),
+                    current_user: models.User = Depends(oauth2.get_current_user)):
     db_business = session.get(models.Business, business_id)
     if not db_business:
         raise HTTPException(status_code=404, detail="Business not found")
@@ -68,7 +75,7 @@ def update_business(business_id: int, business: schemas.BusinessUpdate, session:
     return db_business
 
 # Search for businesses by name
-@router.get("/businesses/search/", response_model=list[schemas.BusinessPublic])
+@router.get("/search/", response_model=list[schemas.BusinessPublic])
 def search_businesses(name: str, session: Session = Depends(get_session)):
     businesses = session.exec(select(models.Business).where(models.Business.name.contains(name))).all()
     if not businesses:

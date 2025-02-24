@@ -5,10 +5,13 @@ from .. import models, schemas
 from ..database import get_session
 
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/categories",
+    tags=["Categories"]
+)
 
 # Create category
-@router.post("/categories/", response_model=schemas.CategoryPublic, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.CategoryPublic, status_code=status.HTTP_201_CREATED)
 def create_category(category: schemas.CategoryCreate, session: Session = Depends(get_session)):
     new_category = models.Category(**category.model_dump())
     session.add(new_category)
@@ -17,7 +20,7 @@ def create_category(category: schemas.CategoryCreate, session: Session = Depends
     return new_category
 
 # Get all categories
-@router.get("/categories/", response_model=list[schemas.CategoryPublic])
+@router.get("/", response_model=list[schemas.CategoryPublic])
 def get_categories(session: Session = Depends(get_session),
                     offset: int = 0,
                     limit: Annotated[int, Query(le=100)] = 100):

@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlmodel import Column, Field, Float, SQLModel
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr
 
 
 # Business classes
@@ -47,6 +47,18 @@ class UserCreate(UserBase):
 
 class UserPublic(UserBase):
     user_id: int
+
+class UserLogin(SQLModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    user_id: int | None = None
+
 
 # Category classes
 class CategoryBase(SQLModel):
