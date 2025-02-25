@@ -3,6 +3,29 @@ from sqlmodel import Column, Field, Float, SQLModel
 from pydantic import BaseModel, EmailStr
 
 
+# User classes
+class UserBase(SQLModel):
+    username: str = Field(unique=True, nullable=False)
+    email: EmailStr
+    
+class UserCreate(UserBase):
+    password: str = Field(nullable=False)
+
+class UserPublic(UserBase):
+    user_id: int
+
+class UserLogin(SQLModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    user_id: int | None = None
+
+
 # Business classes
 class BusinessBase(SQLModel):
     name: str = Field(unique=True, nullable=False)
@@ -27,7 +50,7 @@ class ReviewBase(SQLModel):
     review_text: str = Field(nullable=False)
 
 class ReviewCreate(ReviewBase):
-    user_id: int = Field(nullable=False)
+    pass
 
 class ReviewUpdate(ReviewBase):
     rating: float | None = None
@@ -35,29 +58,9 @@ class ReviewUpdate(ReviewBase):
 
 class ReviewPublic(ReviewBase):
     review_id: int
-    created_at: datetime
-
-# User classes
-class UserBase(SQLModel):
-    username: str = Field(unique=True, nullable=False)
-    email: EmailStr
-    
-class UserCreate(UserBase):
-    password: str = Field(nullable=False)
-
-class UserPublic(UserBase):
     user_id: int
-
-class UserLogin(SQLModel):
-    email: EmailStr
-    password: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    user_id: int | None = None
+    created_at: datetime
+    reviewer: UserBase | None
 
 
 # Category classes

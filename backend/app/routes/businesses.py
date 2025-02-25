@@ -13,8 +13,9 @@ router = APIRouter(
 @router.get("/", response_model=list[schemas.BusinessPublic])
 def get_businesses(session: Session = Depends(get_session),
                     offset: int = 0,
-                    limit: Annotated[int, Query(le=100)] = 100):
-    businesses = session.exec(select(models.Business).offset(offset).limit(limit)).all()
+                    limit: int = 100,
+                    search: str | None = ""):
+    businesses = session.exec(select(models.Business).where(models.Business.name.contains(search)).limit(limit).offset(offset)).all()
     return businesses
 
 # Get an individual business
