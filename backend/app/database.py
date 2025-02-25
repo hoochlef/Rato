@@ -1,17 +1,13 @@
-import os
 from sqlmodel import SQLModel, create_engine, Session
-from dotenv import load_dotenv
-
+from .config import settings
 from app.models import User, Category, Business, Review
 
-# Load environment variables from .env file
-load_dotenv()
 
-# Get the database URL from environment variables
-DATABASE_URL = os.getenv("DATABASE_URL")
+# # Get the database URL from environment variables
+SQLALCHEMY_DATABASE_URL = f'postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}'
 
 # database engine
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 
 def create_tables():
     """Create tables associated with sqlmodel metadata e.g. models that have table=True"""
