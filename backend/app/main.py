@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from .database import create_tables
-from .routes import businesses, categories, users, reviews, login
+from .routes import businesses, categories, users, reviews, login, vote
 
 app = FastAPI()
 
@@ -17,3 +17,4 @@ app.include_router(users.router)
 app.include_router(reviews.router)
 app.include_router(categories.router)
 app.include_router(login.router)
+app.include_router(vote.router)

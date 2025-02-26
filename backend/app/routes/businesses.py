@@ -1,5 +1,4 @@
-from typing import Annotated
-from fastapi import Depends, HTTPException, Query, status, APIRouter
+from fastapi import Depends, HTTPException, status, APIRouter
 from sqlmodel import Session, select
 from .. import models, schemas, oauth2
 from ..database import get_session

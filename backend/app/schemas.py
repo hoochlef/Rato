@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from sqlmodel import Column, Field, Float, SQLModel
 from pydantic import BaseModel, EmailStr
 
@@ -73,3 +74,10 @@ class CategoryCreate(CategoryBase):
 
 class CategoryPublic(CategoryBase):
     category_id: int
+
+# Vote classes
+class Vote(SQLModel):
+    review_id: int
+    # Direction just means : 0 no vote, 1 vote, in any social media you will click on like (direction=1) and 
+    # you can click again to remove it (direction=0)
+    direction: Literal[0, 1]

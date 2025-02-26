@@ -43,3 +43,7 @@ class Category(SQLModel, table=True):
     description: str | None = None
 
 
+class ReviewVote(SQLModel, table=True):
+    __tablename__ = "review_votes"
+    review_id: int = Field(foreign_key="reviews.review_id", ondelete="CASCADE", primary_key=True, nullable=False)
+    user_id: int = Field(foreign_key="users.user_id", ondelete="CASCADE", primary_key=True, nullable=False)
