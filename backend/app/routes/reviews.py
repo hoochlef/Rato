@@ -1,23 +1,36 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 from .. import models, schemas, oauth2
 from ..database import get_session
 
 
 router = APIRouter(
+    prefix="/reviews",
     tags=["Reviews"]
 )
 
-# Get reviews for a business
-@router.get("/businesses/{business_id}/reviews/", response_model=list[schemas.ReviewPublic])
-def get_reviews(business_id: int, session: Session = Depends(get_session)):
-    reviews = session.exec(select(models.Review).where(models.Review.business_id == business_id)).all()
+@router.get("/{business_id}", response_model=list[schemas.ReviewPublicWithVote])
+def get_reviews(business_id: int, session: Session = Depends(get_session),
+                    offset: int = 0,
+                    limit: int = 20):
+    votes_count = func.count(models.ReviewVote.review_id).label("votes_count")
+    reviews = session.exec(
+        select(models.Review, votes_count)
+        .join(models.ReviewVote, models.Review.review_id == models.ReviewVote.review_id, isouter=True)
+        .where(models.Review.business_id == business_id)
+        .limit(limit)
+        .offset(offset)
+        .group_by(models.Review.review_id)
+        .order_by(votes_count.desc())
+    ).all()
+
     if not reviews:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No reviews assigned to that business")
     return reviews
+
     
 # Add a review to a business
-@router.post("/businesses/{business_id}/reviews/", response_model=schemas.ReviewPublic)
+@router.post("/{business_id}", response_model=schemas.ReviewPublic)
 def add_review(business_id: int, review: schemas.ReviewCreate, session: Session = Depends(get_session),
                     current_user: models.User = Depends(oauth2.get_current_user)):
     db_business = session.get(models.Business, business_id)
@@ -31,7 +44,7 @@ def add_review(business_id: int, review: schemas.ReviewCreate, session: Session 
     return db_review
 
 # Delete a review
-@router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_review(review_id: int, session: Session = Depends(get_session),
                     current_user: models.User = Depends(oauth2.get_current_user)):
     review = session.get(models.Review, review_id)
@@ -45,7 +58,7 @@ def delete_review(review_id: int, session: Session = Depends(get_session),
     session.commit()
 
 # Update a review
-@router.patch("/reviews/{review_id}", response_model=schemas.ReviewPublic)
+@router.patch("/{review_id}", response_model=schemas.ReviewPublic)
 def update_review(review_id: int, review: schemas.ReviewUpdate, session: Session = Depends(get_session),
                     current_user: models.User = Depends(oauth2.get_current_user)):
     db_review = session.get(models.Review, review_id)

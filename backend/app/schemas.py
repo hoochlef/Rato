@@ -63,6 +63,9 @@ class ReviewPublic(ReviewBase):
     created_at: datetime
     reviewer: UserBase | None
 
+class ReviewPublicWithVote(SQLModel):
+    Review: ReviewPublic
+    votes_count: int
 
 # Category classes
 class CategoryBase(SQLModel):
