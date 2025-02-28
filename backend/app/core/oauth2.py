@@ -1,11 +1,9 @@
-import os
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
-from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
-from . import schemas, models
+from .. import schemas, models
 from .database import get_session
 from .config import settings
 

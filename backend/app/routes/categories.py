@@ -1,8 +1,10 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Query, status
 from sqlmodel import Session, select
-from .. import models, schemas, oauth2
-from ..database import get_session
+
+from ..core import oauth2
+from .. import models, schemas
+from ..core.database import get_session
 
 
 router = APIRouter(
