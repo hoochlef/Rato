@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Query, status
 from sqlmodel import Session, select
-from .. import models, schemas
+from .. import models, schemas, oauth2
 from ..database import get_session
 
 
@@ -12,7 +12,8 @@ router = APIRouter(
 
 # Create category
 @router.post("/", response_model=schemas.CategoryPublic, status_code=status.HTTP_201_CREATED)
-def create_category(category: schemas.CategoryCreate, session: Session = Depends(get_session)):
+def create_category(category: schemas.CategoryCreate, session: Session = Depends(get_session),
+                current_user: models.User = Depends(oauth2.get_current_user)):
     new_category = models.Category(**category.model_dump())
     session.add(new_category)
     session.commit()
