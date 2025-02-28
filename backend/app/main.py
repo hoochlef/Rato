@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 
-from .database import create_tables
+
 from .routes import businesses, categories, users, reviews, login, vote
 
 app = FastAPI()
 
+# from .database import create_tables
 # Create tables automatically on startup, on_event is deprecated there's another way using
 # lifespan events in fastAPI, for now I will stick to creating tables manually
 # @app.on_event("startup")
