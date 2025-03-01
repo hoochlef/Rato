@@ -1,4 +1,4 @@
-from sqlmodel import create_engine, Session
+from sqlmodel import create_engine
 from .config import settings
 
 # # Get the database URL from environment variables
@@ -17,8 +17,4 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 
 # if __name__ == "__main__":
 #     create_tables()
-
-def get_session():
-    with Session(engine) as session:
-        yield session
     

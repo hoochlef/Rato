@@ -1,9 +1,11 @@
 from fastapi import Depends, HTTPException, status, APIRouter
 from sqlmodel import Session, select
 
-from ..core import oauth2
-from .. import models, schemas
-from ..core.database import get_session
+from ... import models, schemas
+from ...api.deps import (
+    get_session,
+    get_current_user
+)
 
 router = APIRouter(
     prefix="/businesses",
@@ -30,7 +32,7 @@ def get_business(business_id: int, session: Session = Depends(get_session)):
 # Create a business
 @router.post("/", response_model=schemas.BusinessPublic, status_code=status.HTTP_201_CREATED)
 def create_business(business: schemas.BusinessCreate, session: Session = Depends(get_session),
-                    current_user: models.User = Depends(oauth2.get_current_user)):
+                    current_user: models.User = Depends(get_current_user)):
 
     # Check if the category exists
     db_category = session.get(models.Category, business.category_id)  
@@ -46,7 +48,7 @@ def create_business(business: schemas.BusinessCreate, session: Session = Depends
 # Delete a business
 @router.delete("/{business_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_business(business_id: int, session: Session = Depends(get_session),
-                    current_user: models.User = Depends(oauth2.get_current_user)):
+                    current_user: models.User = Depends(get_current_user)):
     
     business = session.get(models.Business, business_id)
     if not business:
@@ -57,7 +59,7 @@ def delete_business(business_id: int, session: Session = Depends(get_session),
 # Update a business
 @router.patch("/{business_id}", response_model=schemas.BusinessPublic)
 def update_business(business_id: int, business: schemas.BusinessUpdate, session: Session = Depends(get_session),
-                    current_user: models.User = Depends(oauth2.get_current_user)):
+                    current_user: models.User = Depends(get_current_user)):
     db_business = session.get(models.Business, business_id)
     if not db_business:
         raise HTTPException(status_code=404, detail="Business not found")

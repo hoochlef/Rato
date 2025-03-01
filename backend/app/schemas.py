@@ -1,13 +1,20 @@
 from datetime import datetime
 from typing import Literal
+from enum import Enum
 from sqlmodel import Column, Field, Float, SQLModel
 from pydantic import BaseModel, EmailStr
 
+
+# Role enum
+class UserRole(str, Enum):
+    USER = "user"
+    ADMIN = "admin"
 
 # User classes
 class UserBase(SQLModel):
     username: str = Field(unique=True, nullable=False)
     email: EmailStr
+    role: UserRole = Field(default=UserRole.USER)
     
 class UserCreate(UserBase):
     password: str = Field(nullable=False)
@@ -25,7 +32,10 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     user_id: int | None = None
+    role: UserRole | None = None
 
+class RoleUpdate(SQLModel):
+    role: UserRole
 
 # Business classes
 class BusinessBase(SQLModel):

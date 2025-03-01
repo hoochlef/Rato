@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlmodel import TIMESTAMP, Column, Field, Float, Relationship, SQLModel
 from sqlalchemy import CheckConstraint, func
+from .schemas import UserRole
 
 # Models
 class Business(SQLModel, table=True):
@@ -18,6 +19,7 @@ class User(SQLModel, table=True):
     username: str = Field(unique=True, nullable=False)
     email: str = Field(unique=True, nullable=False)
     password: str = Field(nullable=False)
+    role: UserRole = Field(default=UserRole.USER, nullable=False)
     created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=False), server_default=func.now()))
 
 class Review(SQLModel, table=True):

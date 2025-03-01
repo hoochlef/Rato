@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 
-from ..core import oauth2, utils
-from .. import models, schemas
-from ..core.database import get_session
+from ...core import security
+from ... import models, schemas
+from ...api.deps import (
+    get_session
+)
 
 
 
@@ -18,9 +20,12 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), session: Sess
     if not user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email or Password is wrong")
     
-    if not utils.verify_password(user_credentials.password, user.password):
+    if not security.verify_password(user_credentials.password, user.password):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email or Password is wrong")
     
-    access_token = oauth2.create_access_token(data = {"user_id": user.user_id})
+    access_token = security.create_access_token(data = {
+        "user_id": user.user_id,
+        "role": user.role
+    })
 
     return {"access_token": access_token, "token_type": "bearer"}

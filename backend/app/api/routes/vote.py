@@ -1,9 +1,11 @@
 from fastapi import Depends, HTTPException, status, APIRouter
 from sqlmodel import Session, select
 
-from ..core import oauth2
-from .. import models, schemas
-from ..core.database import get_session
+from ... import models, schemas
+from ...api.deps import (
+    get_session,
+    get_current_user
+)
 
 router = APIRouter(
     prefix="/vote",
@@ -13,7 +15,7 @@ router = APIRouter(
 # Vote "I find this useful on a review"
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def review_vote(vote: schemas.Vote, session: Session = Depends(get_session),
-                current_user: models.User = Depends(oauth2.get_current_user)):
+                current_user: models.User = Depends(get_current_user)):
     # Check if the review exists
     review = session.get(models.Review, vote.review_id)
     if not review:
