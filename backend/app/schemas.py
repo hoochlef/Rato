@@ -57,14 +57,14 @@ class BusinessUpdate(BusinessBase):
 
 # Review classes
 class ReviewBase(SQLModel):
-    rating: float = Field(nullable=False)
+    rating: int = Field(nullable=False, ge=1, le=5)
     review_text: str = Field(nullable=False)
 
 class ReviewCreate(ReviewBase):
     pass
 
 class ReviewUpdate(ReviewBase):
-    rating: float | None = None
+    rating: int | None = None
     review_text: str | None = None
 
 class ReviewPublic(ReviewBase):

@@ -28,7 +28,7 @@ class Review(SQLModel, table=True):
         CheckConstraint('rating BETWEEN 1 AND 5', name='check_rating_range'),
     )
     review_id: int | None = Field(default=None, primary_key=True)
-    rating: float = Field(nullable=False)
+    rating: int = Field(nullable=False)
     review_text: str = Field(nullable=False)
     user_id: int = Field(foreign_key="users.user_id", ondelete="CASCADE", nullable=False)
     business_id: int = Field(foreign_key="businesses.business_id", ondelete="CASCADE", nullable=False)

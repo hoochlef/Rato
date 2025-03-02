@@ -13,6 +13,20 @@ router = APIRouter(
     tags=["Reviews"]
 )
 
+def update_business_average_rating(business_id: int, session: Session):
+    # Calculate new average rating
+    result = session.exec(
+        select(func.avg(models.Review.rating))
+        .where(models.Review.business_id == business_id)
+    ).first()
+    
+    # Get the business and update its average rating
+    business = session.get(models.Business, business_id)
+    if business:
+        business.average_rating = float(result) if result else 0.0
+        session.add(business)
+        session.commit()
+
 @router.get("/{business_id}", response_model=list[schemas.ReviewPublicWithVote])
 def get_reviews(business_id: int, session: Session = Depends(get_session),
                     offset: int = 0,
@@ -45,6 +59,9 @@ def add_review(business_id: int, review: schemas.ReviewCreate, session: Session 
     session.add(db_review)
     session.commit()
     session.refresh(db_review)
+    
+    update_business_average_rating(business_id, session)
+    
     return db_review
 
 # Delete a review
@@ -58,8 +75,11 @@ def delete_review(review_id: int, session: Session = Depends(get_session),
     if review.user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to do this action")
     
+    business_id = review.business_id
     session.delete(review)
     session.commit()
+    
+    update_business_average_rating(business_id, session)
 
 # Update a review
 @router.patch("/{review_id}", response_model=schemas.ReviewPublic)
@@ -80,4 +100,8 @@ def update_review(review_id: int, review: schemas.ReviewUpdate, session: Session
     session.add(db_review)
     session.commit()
     session.refresh(db_review)
+    
+    if 'rating' in review_data:
+        update_business_average_rating(db_review.business_id, session)
+    
     return db_review
