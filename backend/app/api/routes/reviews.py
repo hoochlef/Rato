@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, func, select
 
 from ... import models, schemas
@@ -26,6 +26,7 @@ def update_business_average_rating(business_id: int, session: Session):
         business.average_rating = float(result) if result else 0.0
         session.add(business)
         session.commit()
+
 
 @router.get("/{business_id}", response_model=list[schemas.ReviewPublicWithVote])
 def get_reviews(business_id: int, session: Session = Depends(get_session),
