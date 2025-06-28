@@ -2,16 +2,10 @@ from datetime import datetime
 from sqlmodel import TIMESTAMP, Column, Field, Float, Relationship, SQLModel
 from sqlalchemy import CheckConstraint, func
 from .schemas import UserRole
+from typing import Optional
 
 # Models
-class Business(SQLModel, table=True):
-    __tablename__ = "businesses"
-    business_id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(unique=True, nullable=False)
-    description: str | None = None
-    average_rating: float = Field(default=0.0, sa_column=Column(Float, server_default="0.0"))
-    category_id: int = Field(foreign_key="categories.category_id", ondelete="CASCADE", nullable=False)
-    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=False), server_default=func.now()))
+
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -20,7 +14,39 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, nullable=False)
     password: str = Field(nullable=False)
     role: UserRole = Field(default=UserRole.USER, nullable=False)
-    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=False), server_default=func.now()))
+    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), server_default=func.now()))
+
+class Category(SQLModel, table=True):
+    __tablename__ = "categories"
+    category_id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, nullable=False)
+    description: str | None = None
+    icon: str = Field(unique=True, nullable=False)
+
+class Business(SQLModel, table=True):
+    __tablename__ = "businesses"
+    business_id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, nullable=False)
+    description: str | None = None
+    average_rating: float = Field(default=0.0, sa_column=Column(Float, server_default="0.0"))
+    location: str = Field(nullable=False)
+    logo: str = Field(nullable=False)
+    number: str | None = None
+    website: str | None = None
+    category_id: int = Field(foreign_key="categories.category_id", ondelete="CASCADE", nullable=False)
+    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), server_default=func.now()))
+    category: Category | None = Relationship()
+    supervisor_id: int | None = Field(foreign_key="users.user_id", nullable=True)
+
+class ReviewReply(SQLModel, table=True):
+    __tablename__ = "review_replies"
+    review_reply_id: int | None = Field(default=None, primary_key=True)
+    review_id: int = Field(foreign_key="reviews.review_id", ondelete="CASCADE", nullable=False)
+    supervisor_id: int = Field(foreign_key="users.user_id", ondelete="CASCADE", nullable=False)
+    reply_text: str = Field(nullable=False)
+    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), server_default=func.now()))
+    review: Optional["Review"] = Relationship(back_populates="reply")
+
 
 class Review(SQLModel, table=True):
     __tablename__ = "reviews"
@@ -29,21 +55,16 @@ class Review(SQLModel, table=True):
     )
     review_id: int | None = Field(default=None, primary_key=True)
     rating: int = Field(nullable=False)
+    review_title: str = Field(nullable=False)
     review_text: str = Field(nullable=False)
     user_id: int = Field(foreign_key="users.user_id", ondelete="CASCADE", nullable=False)
     business_id: int = Field(foreign_key="businesses.business_id", ondelete="CASCADE", nullable=False)
-    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=False), server_default=func.now()))
+    created_at: datetime = Field(sa_column=Column(TIMESTAMP(timezone=True), server_default=func.now()))
 
     # This is not actually a column in the db, we are just using it to return a user object when 
     # we retrive a review
     reviewer: User | None = Relationship()
-
-class Category(SQLModel, table=True):
-    __tablename__ = "categories"
-    category_id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(unique=True, nullable=False)
-    description: str | None = None
-
+    reply: ReviewReply | None = Relationship(back_populates="review")
 
 class ReviewVote(SQLModel, table=True):
     __tablename__ = "review_votes"

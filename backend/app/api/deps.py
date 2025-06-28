@@ -37,3 +37,12 @@ def check_admin(user: models.User):
             detail="Only administrators can perform this action"
         )
     return True 
+
+def check_supervisor(user: models.User):
+    """Function to check if the current user is a supervisor --- Initially it was created to 
+    not give supervisors the ability to submit reviews"""
+    if user.role == UserRole.SUPERVISOR:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Supervisors cannot perform this action"
+        )

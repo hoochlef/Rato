@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from typing import List
+import re
 
 from ...core import security
 from ...api.deps import (
@@ -17,9 +18,38 @@ router = APIRouter(
     tags=["Users"]
 )
 
+def validate_email(email: str) -> bool:
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email))
+
+def validate_username(username: str) -> bool:
+    pattern = r'^[a-zA-Z0-9._-]{3,20}$'
+    return bool(re.match(pattern, username))
+
 # Create user (public endpoint)
 @router.post("/", response_model=schemas.UserPublic, status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate, session: Session = Depends(get_session)):
+    # Validate username format
+    if not validate_username(user.username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username must be between 3 and 20 characters and contain only letters, numbers, dots, underscores, or hyphens"
+        )
+
+    # Validate email format
+    if not validate_email(user.email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid email format"
+        )
+
+    # Validate password length
+    if len(user.password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters long"
+        )
+
     # Check if user with same email or username already exists
     existing_user = session.exec(
         select(models.User).where(
@@ -48,6 +78,13 @@ def create_user(user: schemas.UserCreate, session: Session = Depends(get_session
     session.commit()
     session.refresh(new_user)
     return new_user
+
+@router.get("/me", response_model=schemas.UserPublic)
+def get_my_user(
+    current_user: models.User = Depends(get_current_user)
+):
+    return current_user
+
 
 # Admin only endpoints
 
