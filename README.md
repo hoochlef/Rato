@@ -48,7 +48,7 @@ It’s designed to help people make informed decisions through detailed reviews,
 
 ---
 
-## 🛠 **Tech Stack**  
+## 🛠 Tech Stack 
 
 **Frontend:**  
 - [Next.js](https://nextjs.org/) (React)  
