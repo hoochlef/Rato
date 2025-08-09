@@ -7,7 +7,7 @@ Built with **FastAPI**, **PostgreSQL**, **SQLModel**, and **React/Next.js**.
 
 ## 📌 **Table of Contents**  
 - [Overview](#overview)  
-- [Features](#features)  
+- [Features](#-features)  
 - [Tech Stack](#tech-stack)  
 
 ---
