@@ -6,13 +6,13 @@ Built with **FastAPI**, **PostgreSQL**, **SQLModel**, and **React/Next.js**.
 ---
 
 ## 📌 **Table of Contents**  
-- [Overview](#overview)  
+- [Overview](#-overview)  
 - [Features](#-features)  
-- [Tech Stack](#tech-stack)  
+- [Tech Stack](#-tech-stack)  
 
 ---
 
-## 📝 Overview
+## 📝 **Overview**
 
 This platform allows users to discover, evaluate, and engage with businesses.  
 It’s designed to help people make informed decisions through detailed reviews, ratings, and AI-generated summaries — saving time while keeping reviews authentic.  
@@ -48,7 +48,7 @@ It’s designed to help people make informed decisions through detailed reviews,
 
 ---
 
-## Tech Stack 
+## 🛠 Tech Stack 
 
 **Frontend:**  
 - [Next.js](https://nextjs.org/) (React)  
