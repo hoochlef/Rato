@@ -12,7 +12,7 @@ Built with **FastAPI**, **PostgreSQL**, **SQLModel**, and **React/Next.js**.
 
 ---
 
-## 📝 **Overview**
+## 📝 Overview
 
 This platform allows users to discover, evaluate, and engage with businesses.  
 It’s designed to help people make informed decisions through detailed reviews, ratings, and AI-generated summaries — saving time while keeping reviews authentic.  
